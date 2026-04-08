@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGLA PH – Home Economics App</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#1B3A6B; --teal:#1ABC9C; --teal2:#17A589; --orange:#FF6B35; --orange2:#E8541A;
+  --gold:#FFD700; --blue:#2E86C1; --blue2:#1A5276; --green:#27AE60;
+  --bg:#F4F6F9; --card:#FFFFFF; --text:#1B3A6B; --muted:#7F8C8D;
+  --border:#E8EDF4; --light:#EAF4FB;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:#C8D8EA;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+.phone-frame{width:390px;height:760px;background:#111827;border-radius:50px;padding:14px;box-shadow:0 32px 80px rgba(0,0,0,0.45),inset 0 0 0 1.5px #374151;position:relative;}
+.phone-notch{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:110px;height:28px;background:#111827;border-radius:0 0 16px 16px;z-index:100;}
+.phone-screen{width:100%;height:100%;background:var(--bg);border-radius:38px;overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.3s;background:var(--bg);}
+.screen.active{opacity:1;pointer-events:all;}
+@keyframes floatUp{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.app-header{height:60px;background:white;flex-shrink:0;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--border);box-shadow:0 2px 10px rgba(27,58,107,0.08);}
+.hword{font-family:'Montserrat';font-size:17px;font-weight:900;color:var(--navy);letter-spacing:1px;}
+.hword span{color:var(--teal);}
+.streak-pill{background:linear-gradient(135deg,var(--orange),var(--orange2));color:white;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:4px;}
+.scroll-area{flex:1;overflow-y:auto;padding:14px;}
+.scroll-area::-webkit-scrollbar{width:3px;}
+.scroll-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.bottom-nav{height:62px;background:white;border-top:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:5px 0;transition:all 0.2s;border:none;background:none;}
+.nav-item .ni{font-size:20px;transition:transform 0.2s;}
+.nav-item .nl{font-size:9px;font-weight:800;color:var(--muted);letter-spacing:0.5px;transition:color 0.2s;}
+.nav-item.active .ni{transform:scale(1.3);}
+.nav-item.active .nl{color:var(--teal);}
+.card{background:white;border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(27,58,107,0.07);margin-bottom:12px;}
+.card-title{font-family:'Montserrat';font-size:15px;font-weight:800;margin-bottom:10px;color:var(--navy);}
+.hero-card{background:linear-gradient(135deg,#1B3A6B 0%,#1A5276 60%,#0E6655 100%);border-radius:20px;padding:18px;color:white;margin-bottom:14px;position:relative;overflow:hidden;}
+.hero-card::before{content:'';position:absolute;right:-20px;top:-20px;width:110px;height:110px;border-radius:50%;background:rgba(26,188,156,0.15);}
+.hero-card::after{content:'';position:absolute;right:16px;bottom:-16px;width:70px;height:70px;border-radius:50%;background:rgba(255,107,53,0.15);}
+.hero-card h2{font-family:'Montserrat';font-size:18px;font-weight:900;margin-bottom:3px;}
+.hero-card p{font-size:12px;opacity:0.8;margin-bottom:10px;}
+.xp-track{background:rgba(255,255,255,0.2);border-radius:20px;height:9px;overflow:hidden;}
+.xp-fill{background:linear-gradient(90deg,var(--teal),var(--gold));height:100%;border-radius:20px;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.stat-card{background:white;border-radius:14px;padding:10px 6px;text-align:center;box-shadow:0 2px 8px rgba(27,58,107,0.07);}
+.stat-num{font-family:'Montserrat';font-size:22px;font-weight:900;}
+.stat-lbl{font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.sec-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:12px 0 8px;display:flex;align-items:center;gap:6px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.qrow{display:flex;align-items:center;gap:10px;padding:11px 12px;background:white;border-radius:14px;margin-bottom:8px;box-shadow:0 2px 6px rgba(27,58,107,0.06);cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;border-left:3px solid var(--teal);}
+.qrow:hover{transform:translateX(4px);box-shadow:0 5px 14px rgba(27,58,107,0.12);}
+.qicon{font-size:24px;flex-shrink:0;}
+.qinfo{flex:1;}
+.qinfo h4{font-size:12px;font-weight:800;color:var(--navy);}
+.qinfo p{font-size:10px;color:var(--muted);margin-top:1px;}
+.qxp{font-family:'Montserrat';font-size:12px;font-weight:800;color:var(--orange);flex-shrink:0;}
+.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mod-card{border-radius:18px;padding:16px 12px;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative;}
+.mod-card::after{content:'';position:absolute;right:-14px;bottom:-14px;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.12);}
+.mod-card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,0.18);}
+.mi{font-size:36px;}
+.mt{font-family:'Montserrat';font-size:13px;font-weight:900;color:white;margin-top:6px;line-height:1.2;}
+.mpb{background:rgba(255,255,255,0.25);border-radius:10px;height:5px;margin-top:8px;overflow:hidden;}
+.mpf{background:white;height:100%;border-radius:10px;}
+.ms{font-size:9px;color:rgba(255,255,255,0.8);margin-top:3px;font-weight:700;}
+.lesson-row{display:flex;align-items:center;gap:12px;padding:12px;background:white;border-radius:12px;margin-bottom:7px;box-shadow:0 2px 6px rgba(27,58,107,0.05);cursor:pointer;transition:transform 0.15s;}
+.lesson-row:hover{transform:translateX(4px);}
+.lnum{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat';font-size:14px;font-weight:900;color:white;flex-shrink:0;}
+.linfo h4{font-size:12px;font-weight:800;color:var(--navy);}
+.linfo p{font-size:10px;color:var(--muted);margin-top:1px;}
+.lstatus{font-size:16px;margin-left:auto;}
+.step-dots{display:flex;gap:6px;justify-content:center;margin-bottom:16px;}
+.sdot{height:6px;border-radius:3px;background:var(--border);transition:all 0.3s;}
+.sdot.active{background:var(--teal);width:24px;}
+.sdot.done{background:var(--navy);width:14px;}
+.sdot.idle{width:8px;}
+.proj-hero{border-radius:18px;padding:18px;color:white;margin-bottom:14px;text-align:center;}
+.proj-hero .ph-icon{font-size:52px;}
+.proj-hero h3{font-family:'Montserrat';font-size:18px;font-weight:900;margin-top:6px;}
+.igroup{margin-bottom:10px;}
+.igroup label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:5px;}
+.igroup input,.igroup textarea,.igroup select{width:100%;background:white;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-family:'Nunito';font-size:13px;color:var(--navy);outline:none;transition:border-color 0.2s;}
+.igroup input:focus,.igroup textarea:focus{border-color:var(--teal);}
+.ingr-row{display:flex;gap:8px;margin-bottom:7px;}
+.ingr-row input{flex:1;}
+.ingr-row .cost{width:72px;flex-shrink:0;}
+.add-btn{background:var(--light);border:1.5px dashed var(--teal);color:var(--teal);border-radius:10px;padding:9px;width:100%;font-family:'Montserrat';font-size:13px;font-weight:800;cursor:pointer;}
+.cam-btn{border:none;border-radius:14px;padding:14px;width:100%;color:white;font-family:'Montserrat';font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform 0.15s;margin-bottom:10px;}
+.cam-btn.b{background:linear-gradient(135deg,var(--navy),var(--blue));box-shadow:0 6px 18px rgba(27,58,107,0.3);}
+.cam-btn.a{background:linear-gradient(135deg,var(--teal),var(--teal2));box-shadow:0 6px 18px rgba(26,188,156,0.3);}
+.photo-slot{border-radius:14px;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:8px;}
+.result-hero{border-radius:20px;padding:20px;color:white;text-align:center;background:linear-gradient(135deg,var(--navy),var(--teal2));margin-bottom:14px;}
+.result-score{font-family:'Montserrat';font-size:60px;font-weight:900;}
+.rbadge{background:rgba(255,255,255,0.2);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:800;}
+.trophy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.trophy-cell{text-align:center;padding:12px 6px;background:white;border-radius:14px;box-shadow:0 2px 7px rgba(27,58,107,0.07);}
+.trophy-cell .ti{font-size:32px;}
+.trophy-cell .tn{font-size:9px;font-weight:800;color:var(--navy);margin-top:5px;}
+.trophy-cell.locked{opacity:0.35;filter:grayscale(1);}
+.lb-row{display:flex;align-items:center;gap:10px;padding:11px 13px;background:white;border-radius:13px;margin-bottom:7px;box-shadow:0 2px 6px rgba(27,58,107,0.05);}
+.lb-rank{font-family:'Montserrat';font-size:18px;font-weight:900;width:28px;text-align:center;}
+.lb-ava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.lb-info{flex:1;}
+.lb-info h4{font-size:12px;font-weight:800;color:var(--navy);}
+.lb-info p{font-size:10px;color:var(--muted);}
+.lb-pts{font-family:'Montserrat';font-size:14px;font-weight:900;color:var(--orange);}
+.lb-me{background:#EAF9F6;border:1.5px solid var(--teal);}
+.sdg-hero{background:linear-gradient(135deg,var(--teal2),#0B5345);border-radius:20px;padding:18px;color:white;margin-bottom:14px;text-align:center;}
+.sdg-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.sdg-stat{background:white;border-radius:14px;padding:12px;text-align:center;box-shadow:0 2px 7px rgba(27,58,107,0.06);}
+.sdg-stat .sn{font-family:'Montserrat';font-size:22px;font-weight:900;}
+.bar-item{margin-bottom:12px;}
+.bar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.bar-lbl{font-size:12px;font-weight:800;color:var(--navy);}
+.bar-pct{font-family:'Montserrat';font-size:13px;font-weight:900;}
+.bar-bg{background:var(--border);border-radius:20px;height:12px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:20px;}
+.teacher-hero{background:linear-gradient(135deg,var(--navy),#154360);border-radius:20px;padding:18px;color:white;margin-bottom:14px;}
+.export-row{display:flex;align-items:center;gap:12px;padding:14px;background:white;border-radius:14px;margin-bottom:8px;box-shadow:0 2px 7px rgba(27,58,107,0.06);cursor:pointer;border:none;width:100%;text-align:left;transition:transform 0.15s;}
+.export-row:hover{transform:translateX(4px);box-shadow:0 6px 16px rgba(27,58,107,0.12);}
+.export-row .ei{font-size:32px;flex-shrink:0;}
+.export-row h4{font-size:13px;font-weight:800;color:var(--navy);}
+.export-row p{font-size:10px;color:var(--muted);margin-top:1px;}
+.export-row .ea{margin-left:auto;width:28px;height:28px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:900;flex-shrink:0;}
+.chip{display:inline-flex;align-items:center;background:var(--light);border:1.5px solid var(--border);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:800;margin:3px;cursor:pointer;color:var(--navy);}
+.chip.on{background:var(--teal);color:white;border-color:var(--teal);}
+.act-btn{border:none;border-radius:14px;padding:13px;font-family:'Montserrat';font-size:15px;font-weight:800;color:white;cursor:pointer;width:100%;transition:transform 0.15s;letter-spacing:0.5px;}
+.act-btn:hover{transform:translateY(-2px);}
+.act-btn.teal{background:linear-gradient(135deg,var(--teal),var(--teal2));}
+.act-btn.navy{background:linear-gradient(135deg,var(--navy),var(--blue2));}
+.act-btn.orange{background:linear-gradient(135deg,var(--orange),var(--orange2));}
+.act-btn.green{background:linear-gradient(135deg,var(--green),#1E8449);}
+.back-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:8px;color:var(--navy);font-weight:900;}
+.back-btn:hover{background:var(--light);}
+.wizard-step{display:none;}
+.wizard-step.active{display:block;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;border-radius:30px;padding:11px 22px;font-size:12px;font-weight:800;white-space:nowrap;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="phone-notch"></div>
+  <div class="phone-screen">
+
+    <!-- ══ SPLASH ══ -->
+    <div class="screen active" id="screen-splash">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:linear-gradient(160deg,#0F2547 0%,#1B3A6B 55%,#0E6655 100%);gap:0">
+        <div style="animation:floatUp 3s ease-in-out infinite;margin-bottom:12px">
+          <svg width="180" height="188" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="spfG" x1="0%" y1="100%" x2="60%" y2="0%"><stop offset="0%" stop-color="#FF6B35"/><stop offset="100%" stop-color="#FFD700"/></linearGradient>
+              <linearGradient id="spbG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1ABC9C"/><stop offset="100%" stop-color="#148F77"/></linearGradient>
+              <linearGradient id="spsG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2E86C1"/><stop offset="100%" stop-color="#FFD700" stop-opacity="0.8"/></linearGradient>
+              <linearGradient id="splG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1ABC9C"/><stop offset="100%" stop-color="#27AE60"/></linearGradient>
+            </defs>
+            <!-- Circular swoosh -->
+            <path d="M80 16 C112 12 138 36 142 68 C146 100 128 126 100 132" stroke="url(#spsG)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M80 16 C48 12 22 36 18 68 C14 100 32 126 60 132" stroke="#2E86C1" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <!-- Book right pages -->
+            <path d="M80 108 Q102 97 120 90 L124 110 Q104 120 80 118 Z" fill="url(#spbG)"/>
+            <path d="M80 108 Q95 94 112 85 L116 103 Q99 113 80 115 Z" fill="#1ABC9C" opacity="0.55"/>
+            <!-- Book left pages -->
+            <path d="M80 108 Q58 97 40 90 L36 110 Q56 120 80 118 Z" fill="url(#spbG)"/>
+            <path d="M80 108 Q65 94 48 85 L44 103 Q61 113 80 115 Z" fill="#1ABC9C" opacity="0.55"/>
+            <!-- Book base -->
+            <path d="M36 110 Q80 122 124 110 Q124 118 80 123 Q36 118 36 110 Z" fill="#148F77"/>
+            <!-- Left leaf -->
+            <path d="M64 103 C53 90 46 73 50 58 C54 43 67 41 71 54 C73 63 69 82 64 103 Z" fill="url(#splG)" opacity="0.9"/>
+            <path d="M64 103 C59 90 63 73 67 60" stroke="white" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.35"/>
+            <!-- Right leaf smaller -->
+            <path d="M76 98 C73 87 73 74 79 63 C84 53 91 55 89 66 C87 75 81 88 76 98 Z" fill="url(#splG)" opacity="0.65"/>
+            <!-- Flame outer -->
+            <path d="M80 97 C75 88 71 77 73 64 C75 51 80 44 80 36 C82 47 89 57 87 68 C85 75 87 83 85 91 Z" fill="url(#spfG)"/>
+            <!-- Flame inner glow -->
+            <path d="M80 91 C78 84 76 75 78 66 C79 59 80 54 80 50 C81 57 84 64 83 71 C82 77 82 84 80 91 Z" fill="#FFD700" opacity="0.65"/>
+            <!-- Stars -->
+            <text x="107" y="44" font-size="14" fill="#FFD700" opacity="0.95">✦</text>
+            <text x="93" y="27" font-size="9" fill="#FFD700" opacity="0.75">✦</text>
+            <!-- SIGLA wordmark -->
+            <text x="80" y="150" font-family="Montserrat,Arial Black,sans-serif" font-size="28" font-weight="900" fill="white" text-anchor="middle" letter-spacing="4">SIGLA</text>
+            <!-- |PH| -->
+            <text x="67" y="169" font-family="Montserrat,Arial,sans-serif" font-size="15" font-weight="800" fill="#1ABC9C" text-anchor="middle">|</text>
+            <text x="80" y="169" font-family="Montserrat,Arial,sans-serif" font-size="15" font-weight="800" fill="#1ABC9C" text-anchor="middle">PH</text>
+            <text x="93" y="169" font-family="Montserrat,Arial,sans-serif" font-size="15" font-weight="800" fill="#1ABC9C" text-anchor="middle">|</text>
+          </svg>
+        </div>
+        <div style="color:rgba(255,255,255,0.55);font-size:10px;font-weight:700;letter-spacing:2px;text-align:center;text-transform:uppercase;margin-bottom:22px;line-height:1.9">
+          HOME ECONOMICS LEARNING APP<br><span style="color:var(--teal);font-size:11px">Para sa Pilipinong Estudyante</span>
+        </div>
+        <button onclick="goHome()" style="background:linear-gradient(135deg,#1ABC9C,#2E86C1);color:white;border:none;padding:14px 44px;border-radius:50px;font-family:'Montserrat';font-size:17px;font-weight:800;letter-spacing:1px;cursor:pointer;box-shadow:0 8px 24px rgba(26,188,156,0.4);transition:transform 0.15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">Magsimula Na! 🚀</button>
+        <div style="display:flex;gap:8px;margin-top:18px">
+          <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:20px;padding:4px 11px;font-size:9px;font-weight:800;letter-spacing:1px">100% OFFLINE</div>
+          <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:20px;padding:4px 11px;font-size:9px;font-weight:800;letter-spacing:1px">ANDROID APK</div>
+          <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:20px;padding:4px 11px;font-size:9px;font-weight:800;letter-spacing:1px">DEPED ALIGNED</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SHARED LOGO SNIPPET (used inline in headers) ══ -->
+
+    <!-- ══ HOME ══ -->
+    <div class="screen" id="screen-home">
+      <div class="app-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <svg width="34" height="36" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="h1fG" x1="0%" y1="100%" x2="60%" y2="0%"><stop offset="0%" stop-color="#FF6B35"/><stop offset="100%" stop-color="#FFD700"/></linearGradient><linearGradient id="h1bG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1ABC9C"/><stop offset="100%" stop-color="#148F77"/></linearGradient></defs><path d="M80 108 Q102 97 120 90 L124 110 Q104 120 80 118 Z" fill="url(#h1bG)"/><path d="M80 108 Q58 97 40 90 L36 110 Q56 120 80 118 Z" fill="url(#h1bG)"/><path d="M36 110 Q80 122 124 110 Q124 118 80 123 Q36 118 36 110 Z" fill="#148F77"/><path d="M64 103 C53 90 46 73 50 58 C54 43 67 41 71 54 C73 63 69 82 64 103 Z" fill="#1ABC9C"/><path d="M80 97 C75 88 71 77 73 64 C75 51 80 44 80 36 C82 47 89 57 87 68 C85 75 87 83 85 91 Z" fill="url(#h1fG)"/></svg>
+          <div><div class="hword">SIGLA <span>PH</span></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="streak-pill">🔥 7</div>
+          <span style="font-size:22px;cursor:pointer" onclick="showScreen('screen-trophies');setNav('trophies')">🏆</span>
+        </div>
+      </div>
+      <div class="scroll-area">
+        <div class="hero-card">
+          <h2>Magandang Araw, Ana! 👋</h2>
+          <p>Level 4 · Nutrition Expert · 680 / 1000 XP</p>
+          <div class="xp-track"><div class="xp-fill" style="width:68%"></div></div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:4px;font-weight:700">320 XP hanggang Level 5</div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-num" style="color:var(--navy)">12</div><div class="stat-lbl">Lessons</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:var(--teal)">5</div><div class="stat-lbl">Projects</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:var(--orange)">89%</div><div class="stat-lbl">Avg Score</div></div>
+        </div>
+        <div class="sec-label">📋 Daily Quests</div>
+        <div class="qrow" style="border-left-color:var(--teal)" onclick="showScreen('screen-modules');setNav('modules')"><div class="qicon">🥦</div><div class="qinfo"><h4>Nutrition Lesson 3</h4><p>Vitamins & Minerals · ~15 min</p></div><div class="qxp">+50 XP</div></div>
+        <div class="qrow" style="border-left-color:var(--orange)" onclick="startProjectWizard()"><div class="qicon">🍳</div><div class="qinfo"><h4>Zero-Waste Meal Project</h4><p>Cook family meal under ₱300</p></div><div class="qxp">+120 XP</div></div>
+        <div class="qrow" style="border-left-color:var(--navy)" onclick="showScreen('screen-sdg');setNav('sdg')"><div class="qicon">♻️</div><div class="qinfo"><h4>Log Kitchen Waste</h4><p>Track waste for SDG 12</p></div><div class="qxp">+30 XP</div></div>
+        <div class="sec-label">🎯 Goal This Month</div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="font-size:26px">♻️</span><div><div style="font-weight:800;font-size:13px;color:var(--navy)">Bawasan ang kitchen waste ng 20%</div><div style="font-size:10px;color:var(--muted)">Set by you · 18 days remaining</div></div></div>
+          <div class="bar-bg"><div class="bar-fill" style="width:55%;background:linear-gradient(90deg,var(--teal),var(--green))"></div></div>
+          <div style="font-size:10px;color:var(--muted);margin-top:5px;font-weight:700">55% naabot na · 11% pa ang kailangan</div>
+        </div>
+        <div class="sec-label">🧭 Pumunta Sa</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <button class="act-btn navy" onclick="showScreen('screen-modules');setNav('modules')">📚 Modules</button>
+          <button class="act-btn teal" onclick="startProjectWizard()">🛠️ Projects</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <button class="act-btn orange" onclick="showScreen('screen-trophies');setNav('trophies')">🏆 Trophies</button>
+          <button class="act-btn green" onclick="showScreen('screen-sdg');setNav('sdg')">🌍 SDG</button>
+        </div>
+        <button class="act-btn" style="background:linear-gradient(135deg,#4A235A,#6C3483);margin-bottom:6px" onclick="showScreen('screen-teacher')">👩‍🏫 Teacher / Parent Tools</button>
+        <div style="height:16px"></div>
+      </div>
+      <div class="bottom-nav">
+        <button class="nav-item active" id="nb-home" onclick="showScreen('screen-home');setNav('home')"><span class="ni">🏠</span><span class="nl">Home</span></button>
+        <button class="nav-item" id="nb-modules" onclick="showScreen('screen-modules');setNav('modules')"><span class="ni">📚</span><span class="nl">Modules</span></button>
+        <button class="nav-item" id="nb-project" onclick="startProjectWizard()"><span class="ni">🛠️</span><span class="nl">Project</span></button>
+        <button class="nav-item" id="nb-trophies" onclick="showScreen('screen-trophies');setNav('trophies')"><span class="ni">🏆</span><span class="nl">Trophy</span></button>
+        <button class="nav-item" id="nb-sdg" onclick="showScreen('screen-sdg');setNav('sdg')"><span class="ni">🌍</span><span class="nl">SDG</span></button>
+      </div>
+    </div>
+
+    <!-- ══ MODULES ══ -->
+    <div class="screen" id="screen-modules">
+      <div class="app-header">
+        <div style="display:flex;align-items:center;gap:6px">
+          <svg width="28" height="30" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="m1fG" x1="0%" y1="100%" x2="60%" y2="0%"><stop offset="0%" stop-color="#FF6B35"/><stop offset="100%" stop-color="#FFD700"/></linearGradient><linearGradient id="m1bG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1ABC9C"/><stop offset="100%" stop-color="#148F77"/></linearGradient></defs><path d="M80 108 Q102 97 120 90 L124 110 Q104 120 80 118 Z" fill="url(#m1bG)"/><path d="M80 108 Q58 97 40 90 L36 110 Q56 120 80 118 Z" fill="url(#m1bG)"/><path d="M64 103 C53 90 46 73 50 58 C54 43 67 41 71 54 C73 63 69 82 64 103 Z" fill="#1ABC9C"/><path d="M80 97 C75 88 71 77 73 64 C75 51 80 44 80 36 C82 47 89 57 87 68 C85 75 87 83 85 91 Z" fill="url(#m1fG)"/></svg>
+          <span class="hword">📚 Mga Modyul</span>
+        </div>
+        <div class="streak-pill">🔥 7</div>
+      </div>
+      <div class="scroll-area">
+        <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:12px;font-style:italic">DepEd MATATAG FCS · 4 Modules · Offline Ready</div>
+        <div class="mod-grid">
+          <div class="mod-card" style="background:linear-gradient(135deg,#FF6B35,#C0392B)" onclick="showModuleDetail('food')"><div class="mi">🥗</div><div><div class="mt">Food &<br>Nutrition</div><div class="mpb"><div class="mpf" style="width:75%"></div></div><div class="ms">6/8 lessons</div></div></div>
+          <div class="mod-card" style="background:linear-gradient(135deg,#1B3A6B,#2E86C1)" onclick="showModuleDetail('home')"><div class="mi">🏠</div><div><div class="mt">Home<br>Management</div><div class="mpb"><div class="mpf" style="width:50%"></div></div><div class="ms">4/8 lessons</div></div></div>
+          <div class="mod-card" style="background:linear-gradient(135deg,#6C3483,#9B59B6)" onclick="showModuleDetail('craft')"><div class="mi">🧵</div><div><div class="mt">Handicrafts</div><div class="mpb"><div class="mpf" style="width:30%"></div></div><div class="ms">3/10 lessons</div></div></div>
+          <div class="mod-card" style="background:linear-gradient(135deg,#1ABC9C,#0E6655)" onclick="showModuleDetail('sustain')"><div class="mi">🌱</div><div><div class="mt">Sustainability</div><div class="mpb"><div class="mpf" style="width:40%"></div></div><div class="ms">4/10 lessons</div></div></div>
+        </div>
+        <div class="sec-label">✨ Recommended Next</div>
+        <div class="qrow" style="border-left-color:var(--orange)" onclick="showModuleDetail('food')"><div class="qicon">🍖</div><div class="qinfo"><h4>Lesson 7: Proteins & Amino Acids</h4><p>Food & Nutrition · ~20 min</p></div><div class="qxp">+60 XP</div></div>
+        <div class="qrow" style="border-left-color:var(--teal)" onclick="showModuleDetail('sustain')"><div class="qicon">🌿</div><div class="qinfo"><h4>Lesson 5: Composting 101</h4><p>Sustainability · ~15 min</p></div><div class="qxp">+45 XP</div></div>
+        <div style="height:16px"></div>
+      </div>
+      <div class="bottom-nav">
+        <button class="nav-item" onclick="showScreen('screen-home');setNav('home')"><span class="ni">🏠</span><span class="nl">Home</span></button>
+        <button class="nav-item active" onclick="showScreen('screen-modules');setNav('modules')"><span class="ni">📚</span><span class="nl">Modules</span></button>
+        <button class="nav-item" onclick="startProjectWizard()"><span class="ni">🛠️</span><span class="nl">Project</span></button>
+        <button class="nav-item" onclick="showScreen('screen-trophies');setNav('trophies')"><span class="ni">🏆</span><span class="nl">Trophy</span></button>
+        <button class="nav-item" onclick="showScreen('screen-sdg');setNav('sdg')"><span class="ni">🌍</span><span class="nl">SDG</span></button>
+      </div>
+    </div>
+
+    <!-- ══ MODULE DETAIL ══ -->
+    <div class="screen" id="screen-module-detail">
+      <div class="app-header">
+        <button class="back-btn" onclick="showScreen('screen-modules');setNav('modules')">←</button>
+        <span class="hword" id="mdtitle">Food & Nutrition</span>
+        <span></span>
+      </div>
+      <div class="scroll-area" id="mdcontent"></div>
+      <div class="bottom-nav">
+        <button class="nav-item" onclick="showScreen('screen-home');setNav('home')"><span class="ni">🏠</span><span class="nl">Home</span></button>
+        <button class="nav-item active" onclick="showScreen('screen-modules');setNav('modules')"><span class="ni">📚</span><span class="nl">Modules</span></button>
+        <button class="nav-item" onclick="startProjectWizard()"><span class="ni">🛠️</span><span class="nl">Project</span></button>
+        <button class="nav-item" onclick="showScreen('screen-trophies');setNav('trophies')"><span class="ni">🏆</span><span class="nl">Trophy</span></button>
+        <button class="nav-item" onclick="showScreen('screen-sdg');setNav('sdg')"><span class="ni">🌍</span><span class="nl">SDG</span></button>
+      </div>
+    </div>
+
+    <!-- ══ PROJECT WIZARD ══ -->
+    <div class="screen" id="screen-project">
+      <div class="app-header">
+        <button class="back-btn" onclick="showScreen('screen-home');setNav('home')">←</button>
+        <span class="hword">🛠️ Project Builder</span>
+        <span style="font-size:11px;font-weight:800;color:var(--muted)" id="step-lbl">Step 1/4</span>
+      </div>
+      <div class="scroll-area">
+        <div class="step-dots">
+          <div class="sdot active" id="sd1"></div>
+          <div class="sdot idle" id="sd2"></div>
+          <div class="sdot idle" id="sd3"></div>
+          <div class="sdot idle" id="sd4"></div>
+        </div>
+        <div class="wizard-step active" id="wstep-1">
+          <div style="font-family:'Montserrat';font-size:17px;font-weight:900;color:var(--navy);margin-bottom:14px">Pumili ng Project 📋</div>
+          <div class="qrow" style="border-left:4px solid var(--teal)" onclick="selectProject('meal')"><div class="qicon">🍳</div><div class="qinfo"><h4>Zero-Waste Family Meal</h4><p>Cook under ₱300 · Track nutrition & waste</p></div><div style="font-size:18px;color:var(--teal)">→</div></div>
+          <div class="qrow" style="border-left:4px solid var(--navy)" onclick="selectProject('budget')"><div class="qicon">💰</div><div class="qinfo"><h4>Family Budget Planner</h4><p>Monthly household budget</p></div><div style="font-size:18px;color:var(--navy)">→</div></div>
+          <div class="qrow" style="border-left:4px solid var(--orange)" onclick="selectProject('upcycle')"><div class="qicon">♻️</div><div class="qinfo"><h4>Upcycling Handicraft</h4><p>Turn old clothes into useful items</p></div><div style="font-size:18px;color:var(--orange)">→</div></div>
+          <div class="qrow" style="border-left:4px solid var(--green)" onclick="selectProject('garden')"><div class="qicon">🌱</div><div class="qinfo"><h4>Kitchen Garden</h4><p>Grow herbs using kitchen scraps</p></div><div style="font-size:18px;color:var(--green)">→</div></div>
+        </div>
+        <div class="wizard-step" id="wstep-2">
+          <div class="proj-hero" id="phero" style="background:linear-gradient(135deg,var(--teal),var(--teal2))"><div class="ph-icon" id="picon">🍳</div><h3 id="ptitle">Zero-Waste Family Meal</h3><p>I-log ang iyong ginawa</p></div>
+          <div class="igroup"><label>Pangalan ng Putahe</label><input type="text" placeholder="e.g., Pinakbet, Sinigang" id="dish-inp"></div>
+          <div class="igroup"><label>Mga Sangkap at Halaga</label><div id="ingr-list"><div class="ingr-row"><input type="text" placeholder="Sangkap"><input type="text" placeholder="₱" class="cost"></div><div class="ingr-row"><input type="text" placeholder="Sangkap"><input type="text" placeholder="₱" class="cost"></div></div><button class="add-btn" onclick="addIngr()">+ Dagdag na Sangkap</button></div>
+          <div class="igroup"><label>Bilang ng Tao (Servings)</label><select><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select></div>
+          <div style="height:12px"></div>
+          <button class="act-btn teal" onclick="goStep(3)">Susunod: Kunan ng Larawan →</button>
+        </div>
+        <div class="wizard-step" id="wstep-3">
+          <div style="font-family:'Montserrat';font-size:17px;font-weight:900;color:var(--navy);margin-bottom:14px">📷 Kunan ng Larawan</div>
+          <div class="photo-slot" id="ph-before" style="background:linear-gradient(135deg,#EAF4FB,#D4E6F1)">📷</div>
+          <button class="cam-btn b" onclick="simPhoto('before')">📸 Before Photo (Bago Lutuin)</button>
+          <div class="photo-slot" id="ph-after" style="background:linear-gradient(135deg,#E8F8F5,#D1F2EB)">🍽️</div>
+          <button class="cam-btn a" onclick="simPhoto('after')">📸 After Photo (Tapos na!)</button>
+          <div style="height:10px"></div>
+          <div class="igroup"><label>Reflection / Pagninilay</label><textarea rows="3" placeholder="Ano ang natutunan mo? Paano mo nabawasan ang basura?"></textarea></div>
+          <button class="act-btn navy" onclick="goStep(4)">✅ I-submit ang Project!</button>
+        </div>
+        <div class="wizard-step" id="wstep-4">
+          <div class="result-hero"><div style="font-size:36px">🎉</div><div class="result-score">94</div><div style="font-size:12px;opacity:0.85">Nutrition + Sustainability Score</div><div style="display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap"><div class="rbadge">🥦 Healthy Meal</div><div class="rbadge">♻️ Zero-Waste</div><div class="rbadge">💰 Budget Master</div></div></div>
+          <div class="stats-row"><div class="stat-card"><div class="stat-num" style="color:var(--teal)">₱248</div><div class="stat-lbl">Total Cost</div></div><div class="stat-card"><div class="stat-num" style="color:var(--green)">0.3kg</div><div class="stat-lbl">Waste Saved</div></div><div class="stat-card"><div class="stat-num" style="color:var(--orange)">+120</div><div class="stat-lbl">XP Earned</div></div></div>
+          <div class="card"><div class="card-title">🌍 SDG Impact</div><div style="display:flex;gap:14px;font-size:13px;font-weight:800"><div style="color:var(--green)">🌾 SDG 2: +5 pts</div><div style="color:var(--teal)">♻️ SDG 12: +8 pts</div></div></div>
+          <button class="act-btn navy" onclick="showScreen('screen-home');setNav('home')">🏠 Bumalik sa Home</button>
+        </div>
+        <div style="height:16px"></div>
+      </div>
+      <div class="bottom-nav">
+        <button class="nav-item" onclick="showScreen('screen-home');setNav('home')"><span class="ni">🏠</span><span class="nl">Home</span></button>
+        <button class="nav-item" onclick="showScreen('screen-modules');setNav('modules')"><span class="ni">📚</span><span class="nl">Modules</span></button>
+        <button class="nav-item active"><span class="ni">🛠️</span><span class="nl">Project</span></button>
+        <button class="nav-item" onclick="showScreen('screen-trophies');setNav('trophies')"><span class="ni">🏆</span><span class="nl">Trophy</span></button>
+        <button class="nav-item" onclick="showScreen('screen-sdg');setNav('sdg')"><span class="ni">🌍</span><span class="nl">SDG</span></button>
+      </div>
+    </div>
+
+    <!-- ══ TROPHIES ══ -->
+    <div class="screen" id="screen-trophies">
+      <div class="app-header">
+        <div style="display:flex;align-items:center;gap:6px">
+          <svg width="28" height="30" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="t1fG" x1="0%" y1="100%" x2="60%" y2="0%"><stop offset="0%" stop-color="#FF6B35"/><stop offset="100%" stop-color="#FFD700"/></linearGradient><linearGradient id="t1bG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1ABC9C"/><stop offset="100%" stop-color="#148F77"/></linearGradient></defs><path d="M80 108 Q102 97 120 90 L124 110 Q104 120 80 118 Z" fill="url(#t1bG)"/><path d="M80 108 Q58 97 40 90 L36 110 Q56 120 80 118 Z" fill="url(#t1bG)"/><path d="M64 103 C53 90 46 73 50 58 C54 43 67 41 71 54 C73 63 69 82 64 103 Z" fill="#1ABC9C"/><path d="M80 97 C75 88 71 77 73 64 C75 51 80 44 80 36 C82 47 89 57 87 68 C85 75 87 83 85 91 Z" fill="url(#t1fG)"/></svg>
+          <span class="hword">🏆 Mga Tropeo</span>
+        </div>
+        <div class="streak-pill">🔥 7</div>
+      </div>
+      <div class="scroll-area">
+        <div style="text-align:center;margin-bottom:14px"><div style="font-family:'Montserrat';font-size:44px;font-weight:900;color:var(--navy)">1,240</div><div style="font-size:12px;color:var(--muted);font-weight:700">Total Points · Rank #3 sa Klase</div></div>
+        <div class="sec-label">🥇 Iyong mga Badge</div>
+        <div class="trophy-grid">
+          <div class="trophy-cell"><div class="ti">🍳</div><div class="tn">First Cook!</div></div>
+          <div class="trophy-cell"><div class="ti">🌾</div><div class="tn">Zero Hunger</div></div>
+          <div class="trophy-cell"><div class="ti">🔥</div><div class="tn">7-Day Streak</div></div>
+          <div class="trophy-cell"><div class="ti">💰</div><div class="tn">Budget Master</div></div>
+          <div class="trophy-cell"><div class="ti">♻️</div><div class="tn">Eco Warrior</div></div>
+          <div class="trophy-cell"><div class="ti">📚</div><div class="tn">Book Worm</div></div>
+          <div class="trophy-cell locked"><div class="ti">🧵</div><div class="tn">Craft Master</div></div>
+          <div class="trophy-cell locked"><div class="ti">🌟</div><div class="tn">All-Star</div></div>
+          <div class="trophy-cell locked"><div class="ti">👑</div><div class="tn">Top Chef</div></div>
+        </div>
+        <div class="sec-label">📊 Class Leaderboard</div>
+        <div class="lb-row"><div class="lb-rank" style="color:#FFD700">🥇</div><div class="lb-ava" style="background:#FFF9E6">😊</div><div class="lb-info"><h4>Maria Santos</h4><p>Level 5</p></div><div class="lb-pts">1,580</div></div>
+        <div class="lb-row"><div class="lb-rank" style="color:#AAB7B8">🥈</div><div class="lb-ava" style="background:#EBF5FB">😄</div><div class="lb-info"><h4>Jose Reyes</h4><p>Level 5</p></div><div class="lb-pts">1,420</div></div>
+        <div class="lb-row lb-me"><div class="lb-rank" style="color:#CD7F32">🥉</div><div class="lb-ava" style="background:#E8F8F5">😊</div><div class="lb-info"><h4>Ana dela Cruz (Ikaw!)</h4><p>Level 4</p></div><div class="lb-pts">1,240</div></div>
+        <div class="lb-row"><div class="lb-rank" style="color:var(--muted)">4</div><div class="lb-ava" style="background:#EBF5FB">😐</div><div class="lb-info"><h4>Pedro Gonzales</h4><p>Level 4</p></div><div class="lb-pts" style="color:var(--navy)">1,120</div></div>
+        <div class="lb-row"><div class="lb-rank" style="color:var(--muted)">5</div><div class="lb-ava" style="background:#F5EEF8">😊</div><div class="lb-info"><h4>Clara Ramos</h4><p>Level 3</p></div><div class="lb-pts" style="color:var(--navy)">980</div></div>
+        <div style="height:16px"></div>
+      </div>
+      <div class="bottom-nav">
+        <button class="nav-item" onclick="showScreen('screen-home');setNav('home')"><span class="ni">🏠</span><span class="nl">Home</span></button>
+        <button class="nav-item" onclick="showScreen('screen-modules');setNav('modules')"><span class="ni">📚</span><span class="nl">Modules</span></button>
+        <button class="nav-item" onclick="startProjectWizard()"><span class="ni">🛠️</span><span class="nl">Project</span></button>
+        <button class="nav-item active"><span class="ni">🏆</span><span class="nl">Trophy</span></button>
+        <button class="nav-item" onclick="showScreen('screen-sdg');setNav('sdg')"><span class="ni">🌍</span><span class="nl">SDG</span></button>
+      </div>
+    </div>
+
+    <!-- ══ SDG ══ -->
+    <div class="screen" id="screen-sdg">
+      <div class="app-header">
+        <div style="display:flex;align-items:center;gap:6px">
+          <svg width="28" height="30" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s1fG" x1="0%" y1="100%" x2="60%" y2="0%"><stop offset="0%" stop-color="#FF6B35"/><stop offset="100%" stop-color="#FFD700"/></linearGradient><linearGradient id="s1bG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1ABC9C"/><stop offset="100%" stop-color="#148F77"/></linearGradient></defs><path d="M80 108 Q102 97 120 90 L124 110 Q104 120 80 118 Z" fill="url(#s1bG)"/><path d="M80 108 Q58 97 40 90 L36 110 Q56 120 80 118 Z" fill="url(#s1bG)"/><path d="M64 103 C53 90 46 73 50 58 C54 43 67 41 71 54 C73 63 69 82 64 103 Z" fill="#1ABC9C"/><path d="M80 97 C75 88 71 77 73 64 C75 51 80 44 80 36 C82 47 89 57 87 68 C85 75 87 83 85 91 Z" fill="url(#s1fG)"/></svg>
+          <span class="hword">🌍 SDG Dashboard</span>
+        </div>
+        <div style="background:var(--teal);color:white;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:800">+72 pts</div>
+      </div>
+      <div class="scroll-area">
+        <div class="sdg-hero"><div style="font-size:52px">🌿</div><div style="font-family:'Montserrat';font-size:19px;font-weight:900;margin-top:6px">Iyong SDG Impact</div><div style="font-size:12px;opacity:0.85;margin-top:3px">Nakatutulong ka sa mundo sa pamamagitan ng pagluluto!</div></div>
+        <div class="sdg-stat-grid">
+          <div class="sdg-stat"><div class="sn" style="color:var(--green)">2.4 kg</div><p style="font-size:10px;color:var(--muted);font-weight:700">Waste Saved</p></div>
+          <div class="sdg-stat"><div class="sn" style="color:var(--orange)">8 Meals</div><p style="font-size:10px;color:var(--muted);font-weight:700">Nutrition Improved</p></div>
+          <div class="sdg-stat"><div class="sn" style="color:var(--teal)">3 Items</div><p style="font-size:10px;color:var(--muted);font-weight:700">Upcycled</p></div>
+          <div class="sdg-stat"><div class="sn" style="color:var(--navy)">₱1,240</div><p style="font-size:10px;color:var(--muted);font-weight:700">Family Savings</p></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 SDG Progress</div>
+          <div class="bar-item"><div class="bar-head"><div class="bar-lbl">🌾 SDG 2: Zero Hunger</div><div class="bar-pct" style="color:var(--green)">72%</div></div><div class="bar-bg"><div class="bar-fill" style="width:72%;background:linear-gradient(90deg,#27AE60,#1E8449)"></div></div></div>
+          <div class="bar-item"><div class="bar-head"><div class="bar-lbl">♻️ SDG 12: Responsible Consumption</div><div class="bar-pct" style="color:var(--teal)">58%</div></div><div class="bar-bg"><div class="bar-fill" style="width:58%;background:linear-gradient(90deg,var(--teal),var(--teal2))"></div></div></div>
+          <div class="bar-item"><div class="bar-head"><div class="bar-lbl">💧 SDG 6: Clean Water</div><div class="bar-pct" style="color:var(--blue)">35%</div></div><div class="bar-bg"><div class="bar-fill" style="width:35%;background:linear-gradient(90deg,var(--blue),var(--blue2))"></div></div></div>
+          <div class="bar-item"><div class="bar-head"><div class="bar-lbl">🏫 SDG 4: Quality Education</div><div class="bar-pct" style="color:var(--navy)">88%</div></div><div class="bar-bg"><div class="bar-fill" style="width:88%;background:linear-gradient(90deg,var(--navy),var(--blue))"></div></div></div>
+        </div>
+        <div class="sec-label">📅 Monthly Log</div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--navy);margin-bottom:8px"><span>March 2025</span><span style="color:var(--teal)">See All →</span></div>
+          <div style="display:flex;gap:5px">
+            <div style="flex:1;background:var(--green);border-radius:8px;padding:7px 4px;text-align:center;color:white;font-size:10px;font-weight:800">Mar 14<br>0.3kg</div>
+            <div style="flex:1;background:var(--green);border-radius:8px;padding:7px 4px;text-align:center;color:white;font-size:10px;font-weight:800">Mar 15<br>0.5kg</div>
+            <div style="flex:1;background:var(--orange);border-radius:8px;padding:7px 4px;text-align:center;color:white;font-size:10px;font-weight:800">Mar 16<br>0.4kg</div>
+            <div style="flex:1;background:var(--teal);border-radius:8px;padding:7px 4px;text-align:center;color:white;font-size:10px;font-weight:800">Mar 17<br>0.2kg</div>
+            <div style="flex:1;background:var(--navy);border-radius:8px;padding:7px 4px;text-align:center;color:white;font-size:10px;font-weight:800">Mar 18<br>1.0kg</div>
+          </div>
+        </div>
+        <div style="height:16px"></div>
+      </div>
+      <div class="bottom-nav">
+        <button class="nav-item" onclick="showScreen('screen-home');setNav('home')"><span class="ni">🏠</span><span class="nl">Home</span></button>
+        <button class="nav-item" onclick="showScreen('screen-modules');setNav('modules')"><span class="ni">📚</span><span class="nl">Modules</span></button>
+        <button class="nav-item" onclick="startProjectWizard()"><span class="ni">🛠️</span><span class="nl">Project</span></button>
+        <button class="nav-item" onclick="showScreen('screen-trophies');setNav('trophies')"><span class="ni">🏆</span><span class="nl">Trophy</span></button>
+        <button class="nav-item active"><span class="ni">🌍</span><span class="nl">SDG</span></button>
+      </div>
+    </div>
+
+    <!-- ══ TEACHER ══ -->
+    <div class="screen" id="screen-teacher">
+      <div class="app-header">
+        <button class="back-btn" onclick="showScreen('screen-home');setNav('home')">←</button>
+        <span class="hword">👩‍🏫 Teacher Tools</span>
+        <span></span>
+      </div>
+      <div class="scroll-area">
+        <div class="teacher-hero"><div style="font-family:'Montserrat';font-size:18px;font-weight:900;color:white;margin-bottom:4px">Teacher & Parent Export</div><div style="font-size:12px;color:rgba(255,255,255,0.75)">I-export ang student progress para sa DepEd at barangay reporting.</div></div>
+        <div class="sec-label">📤 I-export ang Data</div>
+        <button class="export-row" onclick="showToast('✅ CSV exported via Bluetooth!')"><span class="ei">📊</span><div><h4>Export Progress (CSV)</h4><p>Scores, XP, projects · Bluetooth transfer</p></div><div class="ea">→</div></button>
+        <button class="export-row" onclick="showToast('✅ PDF Report Generated!')"><span class="ei">📄</span><div><h4>Generate PDF Report</h4><p>Full report card + SDG impact</p></div><div class="ea">→</div></button>
+        <button class="export-row" onclick="showToast('✅ APK ready to share!')"><span class="ei">📱</span><div><h4>Share App (APK)</h4><p>Distribute via Bluetooth / USB</p></div><div class="ea">→</div></button>
+        <button class="export-row" onclick="showToast('✅ Class-level SDG report ready!')"><span class="ei">🏫</span><div><h4>Class-Level Export</h4><p>Aggregate SDG · DepEd / LGU format</p></div><div class="ea">→</div></button>
+        <div class="sec-label">⚙️ Settings</div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:13px;font-weight:800;color:var(--navy)">🔤 Wika</span><div><span class="chip on">Filipino</span><span class="chip">Cebuano</span><span class="chip">English</span></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:13px;font-weight:800;color:var(--navy)">📢 Text-to-Speech</span><div style="background:var(--teal);color:white;border-radius:20px;padding:4px 14px;font-size:11px;font-weight:800">ON</div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;font-weight:800;color:var(--navy)">🌙 Dark Mode</span><div style="background:var(--border);color:var(--muted);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:800">OFF</div></div>
+        </div>
+        <!-- Logo footer -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 0">
+          <svg width="90" height="96" viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="fftG" x1="0%" y1="100%" x2="60%" y2="0%"><stop offset="0%" stop-color="#FF6B35"/><stop offset="100%" stop-color="#FFD700"/></linearGradient>
+              <linearGradient id="ffbG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1ABC9C"/><stop offset="100%" stop-color="#148F77"/></linearGradient>
+              <linearGradient id="ffsG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2E86C1"/><stop offset="100%" stop-color="#FFD700" stop-opacity="0.8"/></linearGradient>
+            </defs>
+            <path d="M80 16 C112 12 138 36 142 68 C146 100 128 126 100 132" stroke="url(#ffsG)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M80 16 C48 12 22 36 18 68 C14 100 32 126 60 132" stroke="#2E86C1" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M80 108 Q102 97 120 90 L124 110 Q104 120 80 118 Z" fill="url(#ffbG)"/>
+            <path d="M80 108 Q58 97 40 90 L36 110 Q56 120 80 118 Z" fill="url(#ffbG)"/>
+            <path d="M36 110 Q80 122 124 110 Q124 118 80 123 Q36 118 36 110 Z" fill="#148F77"/>
+            <path d="M64 103 C53 90 46 73 50 58 C54 43 67 41 71 54 C73 63 69 82 64 103 Z" fill="#1ABC9C"/>
+            <path d="M76 98 C73 87 73 74 79 63 C84 53 91 55 89 66 C87 75 81 88 76 98 Z" fill="#1ABC9C" opacity="0.6"/>
+            <path d="M80 97 C75 88 71 77 73 64 C75 51 80 44 80 36 C82 47 89 57 87 68 C85 75 87 83 85 91 Z" fill="url(#fftG)"/>
+            <path d="M80 91 C78 84 76 75 78 66 C79 59 80 54 80 50 C81 57 84 64 83 71 C82 77 82 84 80 91 Z" fill="#FFD700" opacity="0.6"/>
+            <text x="107" y="44" font-size="14" fill="#FFD700">✦</text>
+            <text x="93" y="27" font-size="9" fill="#FFD700" opacity="0.75">✦</text>
+            <text x="80" y="150" font-family="Montserrat,Arial Black,sans-serif" font-size="28" font-weight="900" fill="#1B3A6B" text-anchor="middle" letter-spacing="4">SIGLA</text>
+            <text x="67" y="169" font-family="Montserrat,Arial,sans-serif" font-size="15" font-weight="800" fill="#1ABC9C" text-anchor="middle">|</text>
+            <text x="80" y="169" font-family="Montserrat,Arial,sans-serif" font-size="15" font-weight="800" fill="#1ABC9C" text-anchor="middle">PH</text>
+            <text x="93" y="169" font-family="Montserrat,Arial,sans-serif" font-size="15" font-weight="800" fill="#1ABC9C" text-anchor="middle">|</text>
+          </svg>
+          <div style="font-size:10px;color:var(--muted);font-weight:700;text-align:center;line-height:1.9">SIGLA PH v1.0 · DepEd MATATAG FCS Aligned<br>MIT App Inventor · 100% Offline · &lt;30MB APK<br>Built with ❤️ for Filipino Students</div>
+        </div>
+        <div style="height:10px"></div>
+      </div>
+      <div class="bottom-nav">
+        <button class="nav-item" onclick="showScreen('screen-home');setNav('home')"><span class="ni">🏠</span><span class="nl">Home</span></button>
+        <button class="nav-item" onclick="showScreen('screen-modules');setNav('modules')"><span class="ni">📚</span><span class="nl">Modules</span></button>
+        <button class="nav-item" onclick="startProjectWizard()"><span class="ni">🛠️</span><span class="nl">Project</span></button>
+        <button class="nav-item" onclick="showScreen('screen-trophies');setNav('trophies')"><span class="ni">🏆</span><span class="nl">Trophy</span></button>
+        <button class="nav-item" onclick="showScreen('screen-sdg');setNav('sdg')"><span class="ni">🌍</span><span class="nl">SDG</span></button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">Done!</div>
+  </div>
+</div>
+
+<!-- Floating teacher -->
+<div style="position:fixed;bottom:28px;right:28px">
+  <button onclick="showScreen('screen-teacher')" style="background:linear-gradient(135deg,#4A235A,#6C3483);border:none;border-radius:50%;width:54px;height:54px;font-size:22px;color:white;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.28);transition:transform 0.2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">👩‍🏫</button>
+</div>
+
+<script>
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function goHome(){showScreen('screen-home');}
+function setNav(k){document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));document.querySelectorAll('#nb-'+k).forEach(b=>b.classList.add('active'));}
+function startProjectWizard(){goStep(1);showScreen('screen-project');}
+function goStep(n){
+  document.querySelectorAll('.wizard-step').forEach((s,i)=>{s.style.display=i+1===n?'block':'none';});
+  document.getElementById('step-lbl').textContent=`Step ${n}/4`;
+  [1,2,3,4].forEach(i=>{const d=document.getElementById('sd'+i);d.className='sdot '+(i<n?'done':(i===n?'active':'idle'));});
+}
+function selectProject(t){
+  const m={meal:['🍳','Zero-Waste Family Meal','linear-gradient(135deg,#1ABC9C,#0E6655)'],budget:['💰','Family Budget Planner','linear-gradient(135deg,#1B3A6B,#2E86C1)'],upcycle:['♻️','Upcycling Handicraft','linear-gradient(135deg,#6C3483,#9B59B6)'],garden:['🌱','Kitchen Garden','linear-gradient(135deg,#27AE60,#1E8449)']};
+  const[icon,title,bg]=m[t];
+  document.getElementById('picon').textContent=icon;document.getElementById('ptitle').textContent=title;document.getElementById('phero').style.background=bg;
+  goStep(2);
+}
+function addIngr(){const l=document.getElementById('ingr-list');const r=document.createElement('div');r.className='ingr-row';r.innerHTML='<input type="text" placeholder="Sangkap"><input type="text" placeholder="₱" class="cost">';l.appendChild(r);}
+function simPhoto(t){const el=document.getElementById('ph-'+t);el.innerHTML=t==='before'?'🥬🧅🍅':'🍲✨';el.style.background=t==='before'?'linear-gradient(135deg,#FEF9E7,#FDEBD0)':'linear-gradient(135deg,#E8F8F5,#D1F2EB)';showToast(t==='before'?'📸 Before photo saved!':'📸 After photo saved!');}
+const moduleData={
+  food:{title:'🥗 Food & Nutrition',bg:'linear-gradient(135deg,#FF6B35,#C0392B)',color:'#FF6B35',lessons:[{n:1,t:'Basics of Nutrition',s:'Macronutrients & Micronutrients',done:true},{n:2,t:'Filipino Food Pyramid',s:'Pinggang Pinoy Guide',done:true},{n:3,t:'Vitamins & Minerals',s:'Sources & Daily Requirements',done:true},{n:4,t:'Meal Planning Basics',s:'Balanced & Affordable',done:true},{n:5,t:'Cooking Methods',s:'Retain Nutrition While Cooking',done:true},{n:6,t:'Food Safety & Hygiene',s:'Proper Storage & Handling',done:true},{n:7,t:'Proteins & Amino Acids',s:'Complete Protein Sources',done:false},{n:8,t:'Zero-Waste Cooking',s:'Nose-to-Tail, Root-to-Leaf',done:false}]},
+  home:{title:'🏠 Home Management',bg:'linear-gradient(135deg,#1B3A6B,#2E86C1)',color:'#1B3A6B',lessons:[{n:1,t:'Family Budgeting',s:'Income, Expenses & Savings',done:true},{n:2,t:'Home Organization',s:'5S Method',done:true},{n:3,t:'Energy Conservation',s:'Save on Electricity & Water',done:true},{n:4,t:'Home Safety',s:'First Aid & Emergency Prep',done:true},{n:5,t:'Cleaning & Sanitation',s:'Eco-friendly Cleaning',done:false},{n:6,t:'Waste Segregation',s:'Basura Management',done:false},{n:7,t:'Simple Home Repairs',s:'Basic Maintenance Skills',done:false},{n:8,t:'Consumer Awareness',s:'Smart Shopping & Rights',done:false}]},
+  craft:{title:'🧵 Handicrafts',bg:'linear-gradient(135deg,#6C3483,#9B59B6)',color:'#6C3483',lessons:[{n:1,t:'Introduction to Crafts',s:'Tools, Materials & Safety',done:true},{n:2,t:'Basic Sewing Stitches',s:'Hand-sewing Fundamentals',done:true},{n:3,t:'Upcycling Basics',s:'Repurposing Old Materials',done:true},{n:4,t:'Fabric Dyeing',s:'Natural Dyes from Local Plants',done:false},{n:5,t:'Weaving Patterns',s:'Traditional Filipino Weaves',done:false},{n:6,t:'Paper Crafts',s:'Origami & Paper Recycling',done:false},{n:7,t:'Functional Bags',s:'Tote Bags from Old Clothes',done:false},{n:8,t:'Decoupage & Painting',s:'Upcycled Home Decor',done:false}]},
+  sustain:{title:'🌱 Sustainability',bg:'linear-gradient(135deg,#1ABC9C,#0E6655)',color:'#1ABC9C',lessons:[{n:1,t:'SDG Overview',s:'17 Goals for a Better World',done:true},{n:2,t:'Climate Change & Food',s:'How HE Connects to Environment',done:true},{n:3,t:'Composting at Home',s:'Kitchen Waste into Garden Gold',done:true},{n:4,t:'Water Conservation',s:'Save Water in the Kitchen',done:true},{n:5,t:'Composting 101',s:'Hot & Cold Composting',done:false},{n:6,t:'Solar & Energy',s:'Simple Solar Solutions',done:false},{n:7,t:'Community Garden',s:'Barangay Food Production',done:false},{n:8,t:'Eco-Friendly Products',s:'DIY Natural Cleaning & Beauty',done:false}]}
+};
+function showModuleDetail(k){
+  const m=moduleData[k];document.getElementById('mdtitle').textContent=m.title;
+  const done=m.lessons.filter(l=>l.done).length;
+  let html=`<div style="background:${m.bg};border-radius:18px;padding:18px;color:white;margin-bottom:14px"><div style="font-family:'Montserrat';font-size:18px;font-weight:900">${m.title}</div><div style="font-size:11px;opacity:0.85;margin-top:3px">DepEd MATATAG FCS · ${done}/${m.lessons.length} Lessons</div><div style="background:rgba(255,255,255,0.25);border-radius:10px;height:7px;margin-top:10px;overflow:hidden"><div style="background:white;height:100%;border-radius:10px;width:${Math.round(done/m.lessons.length*100)}%"></div></div></div>`;
+  m.lessons.forEach(l=>{html+=`<div class="lesson-row"><div class="lnum" style="background:${l.done?m.color:'#BDC3C7'}">${l.n}</div><div class="linfo"><h4>${l.t}</h4><p>${l.s}</p></div><div class="lstatus">${l.done?'✅':'🔒'}</div></div>`;});
+  html+=`<div style="height:12px"></div><button class="act-btn teal" onclick="startProjectWizard()">🛠️ Start Related Project</button><div style="height:16px"></div>`;
+  document.getElementById('mdcontent').innerHTML=html;
+  showScreen('screen-module-detail');
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+document.querySelectorAll('.chip').forEach(c=>{c.addEventListener('click',()=>{c.closest('.card').querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');});});
+// Init wizard steps
+document.querySelectorAll('.wizard-step').forEach((s,i)=>{s.style.display=i===0?'block':'none';});
+</script>
+</body>
+</html>
